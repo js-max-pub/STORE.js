@@ -21,10 +21,31 @@ STORE = {
     },
 
 
+    log: function(p) {
+        console.log('STORE.js log:', p)
+    },
+
+
+
+    changeHandlers: {},
+    onChange: function(regex, callback) {
+        STORE.changeHandlers[regex] = callback;
+    },
+    informChange: function(key, val) {
+        for (var regex in STORE.changeHandlers)
+            if (key.match(new RegExp('^' + regex + '$')))
+                STORE.changeHandlers[regex](key, val);
+            // console.log('inform', key, regex, key.match(new RegExp('^' + regex + '$')));
+    },
+
+
 
     html5: {
         set: function(key, val) {
             localStorage.setItem(key, JSON.stringify(val));
+            STORE.informChange(key, val);
+            // STORE.changeHandlers[key](val);
+            // STORE.changeHandlers['*'](val);
         },
         get: function(key, callback) {
             callback(JSON.parse(localStorage.getItem(key)));
@@ -41,6 +62,7 @@ STORE = {
         },
         del: function(key) {
             localStorage.removeItem(key);
+            STORE.informChange(key, null);
         },
         list: function(callback) {
             callback(Object.keys(localStorage));
@@ -52,6 +74,7 @@ STORE = {
             var set = {};
             set[key] = val;
             chrome.storage.local.set(set);
+            STORE.informChange(key, val);
         },
         get: function(key, callback) {
             chrome.storage.local.get(key, function(res) {
@@ -63,6 +86,7 @@ STORE = {
         },
         del: function(key) {
             chrome.storage.local.remove(key);
+            STORE.informChange(key, null);
         },
         list: function(callback) {
             chrome.storage.local.get(function(res) {
