@@ -27,15 +27,34 @@ STORE = {
 
 
 
-    changeHandlers: {},
-    onChange: function(regex, callback) {
-        STORE.changeHandlers[regex] = callback;
+    changeListeners: {},
+    onChange: function(regex, callback, name) {
+        // STORE.changeListeners[regex] = callback;
+        if (!name) name = 'default';
+        if (!STORE.changeListeners[regex])
+            STORE.changeListeners[regex] = {};
+        STORE.changeListeners[regex][name] = callback;
+        console.log(Object.keys(STORE.changeListeners[regex]), 'event handlers on', regex);
+    },
+    clearChangeListener: function(regex, name) {
+        if (regex)
+            if (name) delete STORE.changeListeners[regex][name];
+            else STORE.changeListeners[regex] = {};
+        else STORE.changeListeners = {};
     },
     informChange: function(key, val) {
-        for (var regex in STORE.changeHandlers)
+        for (var regex in STORE.changeListeners)
             if (key.match(new RegExp('^' + regex + '$')))
-                STORE.changeHandlers[regex](key, val);
+                for (var i in STORE.changeListeners[regex])
+                    STORE.changeListeners[regex][i](key, val);
+            // STORE.changeListeners[regex](key, val);
             // console.log('inform', key, regex, key.match(new RegExp('^' + regex + '$')));
+    },
+    getChange: function(key, callback, name) {
+        STORE.onChange(key, function(key, val) {
+            callback(val);
+        }, name);
+        STORE.get(key, callback);
     },
 
 
@@ -44,8 +63,8 @@ STORE = {
         set: function(key, val) {
             localStorage.setItem(key, JSON.stringify(val));
             STORE.informChange(key, val);
-            // STORE.changeHandlers[key](val);
-            // STORE.changeHandlers['*'](val);
+            // STORE.changeListeners[key](val);
+            // STORE.changeListeners['*'](val);
         },
         get: function(key, callback) {
             callback(JSON.parse(localStorage.getItem(key)));
