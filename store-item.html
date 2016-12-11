@@ -1,0 +1,34 @@
+<script src='STORE.js'></script>
+
+<dom-module id="store-item"></dom-module>
+
+<script>
+    Polymer({
+        is: "store-item",
+        properties: {
+            key: {
+                type: String,
+                observer: 'keyChange'
+            },
+            value: {
+                type: Object,
+                notify: true,
+                observer: 'valueChange'
+            }
+        },
+        ready: function(){
+        },
+        keyChange: function(){
+            console.log('keychange',this.key);
+            STORE.get(this.key, function(val){
+                console.log('value',val);
+                this.set('value',val);
+            }.bind(this));
+        },
+        valueChange: function(neu,alt){
+            if(!alt) return;
+            console.log('valueChange',alt,neu,this.value);
+            STORE.set(this.key, this.value);
+        }
+    });
+</script>

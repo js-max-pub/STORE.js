@@ -34,7 +34,7 @@ STORE = {
         if (!STORE.changeListeners[regex])
             STORE.changeListeners[regex] = {};
         STORE.changeListeners[regex][name] = callback;
-        console.log(Object.keys(STORE.changeListeners[regex]), 'event handlers on', regex);
+        // console.log(Object.keys(STORE.changeListeners[regex]), 'event handlers on', regex);
     },
     clearChangeListener: function(regex, name) {
         if (regex)

@@ -1,0 +1,41 @@
+<script src='STORE.js'></script>
+
+<dom-module id="store-list"></dom-module>
+
+<script>
+    Polymer({
+        is: "store-list",
+        properties: {
+            keys: {
+                type: Array,
+                default: [],
+                notify: true
+            },
+            values: {
+                type: Array,
+                default: [],
+                notify: true
+            }
+        },
+        ready: function(){
+            STORE.onChange('.*',function(key,val){
+                this.loadList();
+            }.bind(this));
+            this.loadList();
+        },
+        loadList: function(){
+            STORE.getAll(function(items){
+                // console.log('items',items);
+                var keys = [];
+                for(var i in items)
+                    keys.push(i);
+                this.set('keys',keys);
+                var values = [];
+                for(var i in items)
+                    values.push(items[i]);
+                this.set('values',values);
+                // console.log('list',this.list);
+            }.bind(this));
+        }
+    });
+</script>
